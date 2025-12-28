@@ -1,94 +1,95 @@
-# Putting it All Together: Components and Props
+# React Components & Props — Vite Lab
 
-## Learning Goals
-
-- Create components that return JSX
-- Use props to make components dynamic
-- Transform lists of data into lists of components
+Small demo showing common React patterns used in modern React (React 19):
+- action-style form handling for creating posts
+- mapping an array of blog posts to child components
+- passing props and callback functions through a shared parent
+- using useRef to bring a form into view without triggering extra re-renders
 
 ## Overview
 
-Now that you've learned how to work with components in React, it's time to build
-something and put those skills to use! Your goal for this lab is to make a
-_static site_ in React to practice building components, writing JSX, and passing
-down data as props.
+This project demonstrates a minimal, practical wiring of components for a blog-like UI:
 
-We'll be creating a personal blog site, similar to
-[Dan Abramov's Overreacted](https://overreacted.io/):
+- App (parent) holds the posts array and the boolean that toggles the AddBlog form.
+- AddBlog is the action-form component that gathers input, builds a new post object (id + formatted date), and calls a parent callback to append the post.
+- ArticleList maps posts → Article components.
+- NewBlogButton toggles the form visibility via props from App.
 
-![demo](https://curriculum-content.s3.amazonaws.com/phase-2/react-hooks-component-props-mini-project/demo.png)
+## Key patterns
 
-There is some starter code available in `src/components/App.js`. There is also
-some data in `data/blog.js` that is being imported into `App` so you can pass it
-down to the components that need it.
+1) Action-style form handling
+- The AddBlog form collects fields locally and submits via a handler that:
+  - prevents default browser behavior,
+  - builds the new post,
+  - invokes a parent callback (passed as a prop) to update the posts state.
+- This keeps the form logic contained while letting the parent own the state (lifting state up).
 
-## Deliverables
+2) Mapping over blog posts
+- ArticleList receives the posts array and renders:
+  - posts.map(post => <Article key={post.id} {...post} onDelete={...} />)
+- Each Article receives only the props it needs (title, body, author, date) and optional callbacks.
 
-Have a look at the components below and draw out a component hierarchy so you
-can determine how to pass data down as props.
+3) Passing props & callbacks through a shared parent
+- App passes data + setters down:
+  - posts → ArticleList
+  - setPosts (or an append function) → AddBlog
+  - showForm + setShowForm → NewBlogButton and AddBlog
+- Children call callbacks to request state changes; App remains the single source of truth.
 
-### Header
+4) useRef to scroll the form into view without extra re-renders
+- AddBlog uses useRef to reference the form DOM node and calls .scrollIntoView() when the form becomes visible.
+- Refs are mutable and do not trigger renders, so this imperative DOM action avoids unnecessary re-render cycles.
 
-Make a `Header` component as a child of `App`. It should return:
+Example snippet (AddBlog scroll logic):
 
-- a `<header>` element with the following elements inside:
-  - an `<h1>` with the name of the blog, passed as a prop called `name`
+```jsx
+const formRef = useRef(null);
 
-### About
+useEffect(() => {
+  if (showForm && formRef.current) {
+    formRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}, [showForm]);
+```
 
-Make an `About` component as a child of `App`. It should return:
+This pattern ensures the form is focused or visible when toggled without updating React state.
 
-- an `<aside>` element with the following elements inside:
-  - an `<img>` element, with the `src` set to an image passed as a prop called
-    `image`
-  - the `<img>` element should use this placeholder image as a _default value_
-    for the prop if no prop is passed in: "https://via.placeholder.com/215"
-  - the image should also be accessible! Give it an `alt` attribute of "blog
-    logo"
-  - a `<p>` element, with the text for the blog passed in as a prop called
-    `about`
+## Quick start
 
-### ArticleList
+```bash
+npm install
+npm run dev
+npm test
+```
 
-Make an `ArticleList` component as a child of `App`. It should return:
+## Files to inspect
 
-- a `<main>` element with the following components inside:
-  - an array of `Article` components (one component for each of the `posts`
-    passed down as props to `ArticleList`)
-  - make sure to assign a unique `key` attribute to each `Article`
+- src/components/App.jsx — parent wiring, posts state
+- src/components/AddBlog.jsx — action-style form, useRef scroll logic
+- src/components/ArticleList.jsx — maps posts → Article
+- src/components/Article.jsx — single post rendering
+- src/data/blog.js — initial posts data
 
-### Article
+## License
 
-Make an `Article` component as a child of `ArticleList`. It should return:
+MIT License
 
-- an `<article>` element, with the following elements inside:
-  - an `<h3>` element displaying the title of the article, passed as a prop
-    called `title`
-  - a `<small>` element displaying the date of the article, passed as a prop
-    called `date`
-    - a _default value_ of "January 1, 1970" should be used if no date is passed
-      as a prop
-  - a `<p>` element displaying the preview of the article, passed as a prop
-    called `preview`
+Copyright (c) 2025
 
-### Bonus Feature: 'Minutes to Read'
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-You'll notice in the original [Overreacted](https://overreacted.io/) site,
-there's a 'minutes to read' indicator next to each article.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-If the article takes less than 30 minutes to read:
-
-- For every 5 minutes (rounded up to the nearest 5), display a coffee cup emoji.
-  For example, if the article takes 3 minutes to read, you should display "☕️ 3
-  min read". If the article takes 7 minute, you should display "☕️☕️ 7 min
-  read".
-
-If the article takes 30 minutes or longer to read:
-
-- For every 10 minutes (rounded up to the nearest 10), display a bento box
-  emoji. For example, if the article takes 35 minutes to read, you should
-  display "🍱🍱🍱🍱 35 min read". If the article takes 61 minutes to read, you
-  should display "🍱🍱🍱🍱🍱🍱🍱 61 min read".
-
-There aren't tests for this feature, so you'll have to rely on running the code
-in the browser to see if your implementation works!
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
