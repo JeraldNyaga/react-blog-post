@@ -12,3 +12,12 @@
   color: #1f2937;
   letter-spacing: -0.5px;
 }
+
+@media (max-width: 600px){
+  .header{
+    margin: 1em;
+  }
+  .title{
+    font-size: 1.7rem;
+  }
+}

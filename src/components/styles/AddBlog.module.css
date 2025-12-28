@@ -99,3 +99,9 @@ button:active {
 .close{
     background-color: rgb(194, 68, 68);
 }
+
+@media (max-width:600px){
+  .container{
+    margin: 1em;
+  }
+}
