@@ -1,18 +1,25 @@
-import Article from "./Article"
-import styles from "./styles/ArticleList.module.css"
+import Article from "./Article";
+import styles from "./styles/ArticleList.module.css";
+import { useRef, useEffect } from "react";
 
-export default function ArticleList({dataPosts}) {
+export default function ArticleList({ dataPosts }) {
+	const bottomRef = useRef(null);
+	const hasMounted = useRef(false);
 
-  return (
+	useEffect(() => {
+		if (!hasMounted.current) {
+			hasMounted.current = true;
+			return;
+		}
+		bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+	}, [dataPosts]);
 
-    <div className={styles.posts_container}>
-        {
-            dataPosts.map(
-                post=>{
-                    return <Article key={post.id}  post={post}/>
-                }
-            )
-        }
-    </div>
-  )
+	return (
+		<div className={styles.posts_container}>
+			{dataPosts.map((post) => (
+				<Article key={post.id} post={post} />
+			))}
+			<div ref={bottomRef} />
+		</div>
+	);
 }
