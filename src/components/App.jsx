@@ -1,14 +1,21 @@
-import React from "react";
 import blogData from "../data/blog";
+import Header from "./Header";
+import Footer from "./Footer";
+import About from "./About";
+import ArticleList from "./ArticleList";
 
-console.log(blogData);
+console.log(blogData.posts)
 
 function App() {
   return (
-    <div className="App">
-      You're on your own from here! Follow the deliverables; test things out in
-      the browser as you write your code; and good luck!
-    </div>
+		<>
+    <Header />
+			<main>
+				<About />
+        <ArticleList/>
+			</main>
+      <Footer />
+		</>
   );
 }
 
